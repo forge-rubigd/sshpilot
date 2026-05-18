@@ -21,6 +21,11 @@ class Sshpilot < Formula
   depends_on "gtk4"
   depends_on "gtksourceview5"
   depends_on "libadwaita"
+  # PyNaCl pins its own libsodium copy inside its sdist; without
+  # this system dep + SODIUM_INSTALL=system below the wheel build
+  # fails on missing sodium.h. Standard Homebrew pattern for any
+  # formula carrying PyNaCl as a transitive resource.
+  depends_on "libsodium"
   depends_on "py3cairo"
   depends_on "pygobject3"
   depends_on "python@3.13"
@@ -121,6 +126,13 @@ class Sshpilot < Formula
   end
 
   def install
+    # PyNaCl's wheel build invokes its bundled libsodium copy
+    # unless told otherwise. SODIUM_INSTALL=system points it at
+    # the Homebrew-installed libsodium headers / lib so the build
+    # links against the shared system copy instead of trying to
+    # compile the bundled tarball.
+    ENV["SODIUM_INSTALL"] = "system"
+
     # virtualenv_install_with_resources creates the venv, installs
     # every `resource` block above, then installs the package
     # itself. Replaces the manual `system pip` calls from the
