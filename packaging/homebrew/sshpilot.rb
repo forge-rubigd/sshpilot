@@ -9,6 +9,12 @@ class Sshpilot < Formula
   head "https://github.com/mfat/sshpilot.git", branch: "main"
 
   depends_on "pkg-config" => :build
+  # bcrypt 5.x + cryptography 35+ build their low-level crypto via
+  # Rust (maturin / setuptools-rust). Build-only dep — no runtime
+  # Rust needed once the sdists are compiled into wheels inside
+  # the virtualenv. Standard Homebrew pattern for Python-with-Rust
+  # resources.
+  depends_on "rust" => :build
 
   depends_on "adwaita-icon-theme"
   depends_on "gobject-introspection"
